@@ -38,7 +38,7 @@ public class LibraryEventProducer {
     }
 
     private void handleSuccess(int key, String value, SendResult<Integer, String> result) {
-        log.info("Message send successfully for the key: {} with the value: {}, partion is: {}",
+        log.info("Message send successfully for the key: {} with the value: {}, partition is: {}",
                 key, value, result.getRecordMetadata().partition());
     }
 
