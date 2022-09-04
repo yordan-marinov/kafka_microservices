@@ -22,6 +22,7 @@ public class LibraryEventProducerService {
 
     public void produce(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException, TimeoutException {
         producer.sendLibraryEvent(libraryEvent);
+//        producer.sendLibraryEventDefaultTopic(libraryEvent);
 //        SendResult<Integer, String> result = producer.sendLibraryEventSynchronous(libraryEvent);
 
     }

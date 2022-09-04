@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yordanm.event_producer.domains.LibraryEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
@@ -22,8 +23,9 @@ public class LibraryEventProducer {
 
     private KafkaTemplate<Integer, String> kafkaTemplate;
     private ObjectMapper objectMapper;
+    private final String topic = "library-events";
 
-    public void sendLibraryEvent(LibraryEvent libraryEvent) throws JsonProcessingException {
+    public void sendLibraryEventDefaultTopic(LibraryEvent libraryEvent) throws JsonProcessingException {
         int key = libraryEvent.getEventId();
         String value = objectMapper.writeValueAsString(libraryEvent);
 
@@ -40,6 +42,27 @@ public class LibraryEventProducer {
             }
         });
     }
+
+    public void sendLibraryEvent(LibraryEvent libraryEvent) throws JsonProcessingException {
+        int key = libraryEvent.getEventId();
+        String value = objectMapper.writeValueAsString(libraryEvent);
+
+        ProducerRecord<Integer, String> producerRecord = buildProducerRecord(key, value, topic);
+
+        ListenableFuture<SendResult<Integer, String>> listenableFuture = kafkaTemplate.send(producerRecord);
+        listenableFuture.addCallback(new ListenableFutureCallback<>() {
+            @Override
+            public void onFailure(Throwable ex) {
+                handleFailure(ex);
+            }
+
+            @Override
+            public void onSuccess(SendResult<Integer, String> result) {
+                handleSuccess(key, value, result);
+            }
+        });
+    }
+
 
     public SendResult<Integer, String> sendLibraryEventSynchronous(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException, TimeoutException {
         int key = libraryEvent.getEventId();
@@ -59,6 +82,11 @@ public class LibraryEventProducer {
             throw e;
         }
         return sendResult;
+    }
+
+    // ------ Private methods ----------
+    private ProducerRecord<Integer, String> buildProducerRecord(int key, String value, String topic) {
+        return new ProducerRecord<>(topic, null, key, value, null);
     }
 
     private void handleSuccess(int key, String value, SendResult<Integer, String> result) {
