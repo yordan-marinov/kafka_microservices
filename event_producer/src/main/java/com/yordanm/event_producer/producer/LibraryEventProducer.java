@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 @Component
 @Slf4j
 @AllArgsConstructor
@@ -35,6 +39,26 @@ public class LibraryEventProducer {
                 handleSuccess(key, value, result);
             }
         });
+    }
+
+    public SendResult<Integer, String> sendLibraryEventSynchronous(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException, TimeoutException {
+        int key = libraryEvent.getEventId();
+        String value = objectMapper.writeValueAsString(libraryEvent);
+        SendResult<Integer, String> sendResult;
+
+        try {
+            sendResult = kafkaTemplate.sendDefault(key, value).get(1, TimeUnit.SECONDS);
+            log.info("<><><><> SendResult is: {}", sendResult.toString());
+            log.info("Message send successfully for the key: {} with the value: {}, partition is: {}",
+                    key, value, sendResult.getRecordMetadata().partition());
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("InterruptedException|ExecutionException Error Sending Message with exception: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Exception Error Sending Message with exception: {}", e.getMessage());
+            throw e;
+        }
+        return sendResult;
     }
 
     private void handleSuccess(int key, String value, SendResult<Integer, String> result) {
