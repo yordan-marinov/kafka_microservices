@@ -6,12 +6,16 @@ import com.yordanm.event_producer.domains.LibraryEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -86,7 +90,13 @@ public class LibraryEventProducer {
 
     // ------ Private methods ----------
     private ProducerRecord<Integer, String> buildProducerRecord(int key, String value, String topic) {
-        return new ProducerRecord<>(topic, null, key, value, null);
+
+        List<Header> headers = List.of(
+                new RecordHeader("event-source", "scanner".getBytes(StandardCharsets.UTF_8)),
+                new RecordHeader("event-source-id", "123456789".getBytes(StandardCharsets.UTF_8))
+        );
+
+        return new ProducerRecord<>(topic, null, key, value, headers);
     }
 
     private void handleSuccess(int key, String value, SendResult<Integer, String> result) {
