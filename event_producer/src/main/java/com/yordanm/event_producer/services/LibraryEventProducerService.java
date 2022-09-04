@@ -1,6 +1,6 @@
-package com.yordanm.event_producer.service;
+package com.yordanm.event_producer.services;
 
-import com.yordanm.event_producer.domain.LibraryEvent;
+import com.yordanm.event_producer.domains.LibraryEvent;
 import org.springframework.stereotype.Service;
 
 @Service

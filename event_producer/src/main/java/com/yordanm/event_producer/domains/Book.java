@@ -1,17 +1,17 @@
-package com.yordanm.event_producer.domain;
+package com.yordanm.event_producer.domains;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
-public class LibraryEvent {
+public class Book {
 
-    private int eventId;
-    private Book book;
+    private int bookId;
+    private String title;
+    private String author;
 }

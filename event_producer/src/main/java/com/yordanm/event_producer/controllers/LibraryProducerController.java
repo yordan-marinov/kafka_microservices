@@ -1,7 +1,7 @@
 package com.yordanm.event_producer.controllers;
 
-import com.yordanm.event_producer.domain.LibraryEvent;
-import com.yordanm.event_producer.service.LibraryEventProducerService;
+import com.yordanm.event_producer.domains.LibraryEvent;
+import com.yordanm.event_producer.services.LibraryEventProducerService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
